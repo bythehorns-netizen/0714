@@ -8,7 +8,6 @@
     :root {
       --primary: #0066cc;
       --primary-focus: #0071e3;
-      --primary-on-dark: #2997ff;
       --ink: #1d1d1f;
       --body: #1d1d1f;
       --body-on-dark: #ffffff;
@@ -25,13 +24,9 @@
       --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -40,10 +35,7 @@
       background: var(--canvas-parchment);
     }
 
-    button,
-    input {
-      font: inherit;
-    }
+    button, input { font: inherit; }
 
     .global-nav {
       position: sticky;
@@ -52,13 +44,20 @@
       height: 44px;
       background: var(--surface-black);
       color: var(--body-on-dark);
-      border: 0;
+    }
+
+    .global-nav-inner,
+    .sub-nav-inner,
+    .hero-inner,
+    .feature-inner,
+    .history-inner,
+    .footer-inner {
+      margin: 0 auto;
     }
 
     .global-nav-inner {
       max-width: 1440px;
       height: 100%;
-      margin: 0 auto;
       padding: 0 22px;
       display: flex;
       align-items: center;
@@ -74,20 +73,9 @@
       letter-spacing: -0.12px;
     }
 
-    .global-nav-brand {
-      font-weight: 600;
-    }
-
-    .global-nav-copy {
-      color: rgba(255, 255, 255, 0.72);
-      flex: 1;
-      text-align: center;
-    }
-
-    .global-nav-link {
-      color: var(--body-on-dark);
-      text-decoration: none;
-    }
+    .global-nav-brand { font-weight: 600; }
+    .global-nav-copy { color: rgba(255, 255, 255, 0.72); flex: 1; text-align: center; }
+    .global-nav-link { color: var(--body-on-dark); text-decoration: none; }
 
     .sub-nav {
       position: sticky;
@@ -102,7 +90,6 @@
     .sub-nav-inner {
       max-width: 1440px;
       height: 100%;
-      margin: 0 auto;
       padding: 0 22px;
       display: flex;
       align-items: center;
@@ -158,35 +145,21 @@
     }
 
     .button-primary:active,
-    .button-secondary:active {
-      transform: scale(0.95);
-    }
-
+    .button-secondary:active { transform: scale(0.95); }
     .button-primary:focus-visible,
-    .button-secondary:focus-visible {
-      outline: 2px solid var(--primary-focus);
-      outline-offset: 2px;
-    }
+    .button-secondary:focus-visible { outline: 2px solid var(--primary-focus); outline-offset: 2px; }
 
     .hero-tile,
     .feature-tile,
     .history-tile,
-    .footer {
-      padding: 80px 24px;
-    }
+    .footer { padding: 80px 24px; }
 
-    .hero-tile {
-      background: var(--canvas);
-      text-align: center;
-    }
+    .hero-tile { background: var(--canvas); text-align: center; }
 
     .hero-inner,
     .feature-inner,
     .history-inner,
-    .footer-inner {
-      max-width: 980px;
-      margin: 0 auto;
-    }
+    .footer-inner { max-width: 980px; }
 
     .eyebrow {
       margin: 0 0 12px;
@@ -206,13 +179,8 @@
       letter-spacing: -0.28px;
     }
 
-    .hero-title {
-      font-size: clamp(34px, 6vw, 56px);
-    }
-
-    .section-title {
-      font-size: clamp(32px, 5vw, 40px);
-    }
+    .hero-title { font-size: clamp(34px, 6vw, 56px); }
+    .section-title { font-size: clamp(32px, 5vw, 40px); }
 
     .hero-copy,
     .section-copy {
@@ -232,10 +200,16 @@
       margin-top: 28px;
     }
 
-    .lotto-stage {
-      margin: 56px auto 0;
-      max-width: 760px;
+    .status-line {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.43;
+      letter-spacing: -0.224px;
+      color: var(--ink-muted-48);
+      min-height: 20px;
     }
+
+    .lotto-stage { margin: 56px auto 0; max-width: 760px; }
 
     .lotto-machine {
       position: relative;
@@ -251,8 +225,7 @@
       aspect-ratio: 16 / 9;
       border-radius: 9999px;
       border: 10px solid #d9dbe1;
-      background:
-        radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 243, 248, 0.95) 55%, rgba(224, 228, 235, 0.9) 100%);
+      background: radial-gradient(circle at 50% 48%, rgba(255,255,255,0.98) 0%, rgba(241,243,248,0.95) 55%, rgba(224,228,235,0.9) 100%);
       overflow: hidden;
     }
 
@@ -324,9 +297,7 @@
       text-align: center;
     }
 
-    .feature-tile .section-copy {
-      color: var(--body-muted);
-    }
+    .feature-tile .section-copy { color: var(--body-muted); }
 
     .feature-grid {
       margin-top: 48px;
@@ -410,71 +381,31 @@
       letter-spacing: -0.12px;
     }
 
-    .footer-inner p {
-      margin: 0;
-    }
+    .footer-inner p { margin: 0; }
 
     @keyframes rise-in {
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     @media (max-width: 1068px) {
-      .hero-tile,
-      .feature-tile,
-      .history-tile,
-      .footer {
-        padding: 64px 20px;
-      }
-
-      .feature-grid,
-      .history-list {
-        grid-template-columns: 1fr;
-      }
+      .hero-tile, .feature-tile, .history-tile, .footer { padding: 64px 20px; }
+      .feature-grid, .history-list { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 833px) {
-      .global-nav-copy,
-      .sub-nav-note {
-        display: none;
-      }
-
-      .sub-nav-inner {
-        justify-content: space-between;
-      }
+      .global-nav-copy, .sub-nav-note { display: none; }
+      .sub-nav-inner { justify-content: space-between; }
     }
 
     @media (max-width: 640px) {
-      .hero-tile,
-      .feature-tile,
-      .history-tile,
-      .footer {
-        padding: 48px 16px;
-      }
-
-      .number-orbs {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .machine-top {
-        margin-bottom: 20px;
-      }
-
-      .hero-meta {
-        gap: 12px;
-      }
+      .hero-tile, .feature-tile, .history-tile, .footer { padding: 48px 16px; }
+      .number-orbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .machine-top { margin-bottom: 20px; }
+      .hero-meta { gap: 12px; }
     }
 
     @media (max-width: 419px) {
-      .hero-title {
-        font-size: 28px;
-      }
-
-      .section-title {
-        font-size: 28px;
-      }
+      .hero-title, .section-title { font-size: 28px; }
     }
   </style>
 </head>
@@ -509,6 +440,7 @@
           <button class="button-secondary" id="autoButton">자동 5세트</button>
         </div>
 
+        <div class="status-line" id="saveStatus">추첨 결과는 Supabase에 저장됩니다.</div>
         <div class="hero-meta">
           <span id="drawInfo">추첨 대기 중</span>
           <span>정렬: 오름차순</span>
@@ -565,6 +497,7 @@
     const numbersEl = document.getElementById("numbers");
     const historyEl = document.getElementById("historyList");
     const drawInfoEl = document.getElementById("drawInfo");
+    const saveStatusEl = document.getElementById("saveStatus");
     const drawButton = document.getElementById("drawButton");
     const heroDrawButton = document.getElementById("heroDrawButton");
     const autoButton = document.getElementById("autoButton");
@@ -572,12 +505,10 @@
 
     function pickNumbers() {
       const pool = Array.from({ length: 45 }, (_, index) => index + 1);
-
       for (let i = pool.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
       }
-
       return pool.slice(0, 6).sort((a, b) => a - b);
     }
 
@@ -591,7 +522,6 @@
 
     function renderNumbers(numbers) {
       numbersEl.innerHTML = "";
-
       numbers.forEach((number) => {
         const ball = document.createElement("div");
         ball.className = `ball ${getRangeClass(number)}`;
@@ -602,7 +532,6 @@
 
     function renderHistory() {
       historyEl.innerHTML = "";
-
       history.slice(0, 5).forEach((numbers, index) => {
         const item = document.createElement("article");
         item.className = "history-item";
@@ -611,12 +540,29 @@
       });
     }
 
+    async function saveDraw(numbers) {
+      saveStatusEl.textContent = "Supabase에 저장 중...";
+      try {
+        const response = await fetch("/api/save-draw", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ numbers })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "저장 실패");
+        saveStatusEl.textContent = `Supabase 저장 완료: ${payload.id}`;
+      } catch (error) {
+        saveStatusEl.textContent = `저장 실패: ${error.message}`;
+      }
+    }
+
     function drawOneSet() {
       const numbers = pickNumbers();
       history.push(numbers);
       renderNumbers(numbers);
       renderHistory();
       drawInfoEl.textContent = `${history.length}번째 추첨 완료`;
+      saveDraw(numbers);
     }
 
     function drawFiveSets() {
@@ -627,7 +573,6 @@
     drawButton.addEventListener("click", drawOneSet);
     heroDrawButton.addEventListener("click", drawOneSet);
     autoButton.addEventListener("click", drawFiveSets);
-
     drawOneSet();
   </script>
 </body>
