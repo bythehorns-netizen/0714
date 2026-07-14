@@ -40,22 +40,29 @@ exports.handler = async (event) => {
     return json(400, { error: "numbers must contain valid numeric values" });
   }
 
-  const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/${supabaseTable}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${supabaseServiceRoleKey}`,
-      apikey: supabaseServiceRoleKey,
-      Prefer: "return=representation",
-    },
-    body: JSON.stringify([{ numbers }]),
-  });
+  try {
+    const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/${supabaseTable}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseServiceRoleKey}`,
+        apikey: supabaseServiceRoleKey,
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify([{ numbers }]),
+    });
 
-  if (!response.ok) {
-    const message = await response.text();
-    return json(response.status, { error: message || "Supabase insert failed" });
+    const rawBody = await response.text();
+    const isJson = (response.headers.get("content-type") || "").includes("application/json");
+    const payload = isJson ? JSON.parse(rawBody || "[]") : rawBody;
+
+    if (!response.ok) {
+      const message = isJson ? payload?.message || payload?.error || rawBody : rawBody;
+      return json(response.status, { error: message || "Supabase insert failed" });
+    }
+
+    return json(200, { ok: true, id: Array.isArray(payload) ? payload?.[0]?.id ?? null : null });
+  } catch (error) {
+    return json(500, { error: error.message || "Supabase request failed" });
   }
-
-  const data = await response.json();
-  return json(200, { ok: true, id: data?.[0]?.id ?? null });
 };

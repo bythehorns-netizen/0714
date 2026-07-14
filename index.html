@@ -541,15 +541,29 @@
     }
 
     async function saveDraw(numbers) {
+      if (window.location.protocol === "file:") {
+        saveStatusEl.textContent = "로컬 파일에서는 저장을 건너뜁니다. Vercel 배포 후 Supabase에 저장됩니다.";
+        return;
+      }
+
       saveStatusEl.textContent = "Supabase에 저장 중...";
       try {
         const response = await fetch("/api/save-draw", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
           body: JSON.stringify({ numbers })
         });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "저장 실패");
+
+        const contentType = response.headers.get("content-type") || "";
+        const rawBody = await response.text();
+        const payload = contentType.includes("application/json")
+          ? JSON.parse(rawBody || "{}")
+          : { error: rawBody };
+
+        if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
         saveStatusEl.textContent = `Supabase 저장 완료: ${payload.id}`;
       } catch (error) {
         saveStatusEl.textContent = `저장 실패: ${error.message}`;
