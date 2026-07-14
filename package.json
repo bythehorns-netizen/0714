@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "scripts": {
     "vercel:login": "vercel.cmd login",
     "vercel:link": "vercel.cmd link",
