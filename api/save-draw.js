@@ -50,6 +50,10 @@ exports.handler = async (event) => {
     return json(400, { error: "numbers must contain valid numeric values" });
   }
 
+  const row = {
+    numbers,
+  };
+
   try {
     const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/${supabaseTable}`, {
       method: "POST",
@@ -59,7 +63,7 @@ exports.handler = async (event) => {
         apikey: supabaseServiceRoleKey,
         Prefer: "return=representation",
       },
-      body: JSON.stringify([{ numbers }]),
+      body: JSON.stringify([row]),
     });
 
     const rawBody = await response.text();
@@ -67,7 +71,9 @@ exports.handler = async (event) => {
     const payload = isJson ? JSON.parse(rawBody || "[]") : rawBody;
 
     if (!response.ok) {
-      const message = isJson ? payload?.message || payload?.error || rawBody : rawBody;
+      const message = isJson
+        ? payload?.message || payload?.error || payload?.details || rawBody
+        : rawBody;
       return json(response.status, { error: message || "Supabase insert failed" });
     }
 
