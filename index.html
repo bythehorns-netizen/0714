@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로또 추첨기</title>
+  <style>
+    :root {
+      --primary: #0066cc;
+      --primary-focus: #0071e3;
+      --primary-on-dark: #2997ff;
+      --ink: #1d1d1f;
+      --body: #1d1d1f;
+      --body-on-dark: #ffffff;
+      --body-muted: #cccccc;
+      --ink-muted-80: #333333;
+      --ink-muted-48: #7a7a7a;
+      --divider-soft: #f0f0f0;
+      --hairline: #e0e0e0;
+      --canvas: #ffffff;
+      --canvas-parchment: #f5f5f7;
+      --surface-tile-1: #272729;
+      --surface-tile-2: #2a2a2c;
+      --surface-black: #000000;
+      --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "SF Pro Text", "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--body);
+      background: var(--canvas-parchment);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 44px;
+      background: var(--surface-black);
+      color: var(--body-on-dark);
+      border: 0;
+    }
+
+    .global-nav-inner {
+      max-width: 1440px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .global-nav-brand,
+    .global-nav-copy,
+    .global-nav-link {
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: -0.12px;
+    }
+
+    .global-nav-brand {
+      font-weight: 600;
+    }
+
+    .global-nav-copy {
+      color: rgba(255, 255, 255, 0.72);
+      flex: 1;
+      text-align: center;
+    }
+
+    .global-nav-link {
+      color: var(--body-on-dark);
+      text-decoration: none;
+    }
+
+    .sub-nav {
+      position: sticky;
+      top: 44px;
+      z-index: 19;
+      height: 52px;
+      backdrop-filter: saturate(180%) blur(20px);
+      background: rgba(245, 245, 247, 0.8);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .sub-nav-inner {
+      max-width: 1440px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .sub-nav-title {
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 21px;
+      font-weight: 600;
+      line-height: 1.19;
+      letter-spacing: 0.231px;
+      color: var(--ink);
+    }
+
+    .sub-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sub-nav-note {
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: -0.224px;
+      color: var(--ink-muted-48);
+    }
+
+    .button-primary,
+    .button-secondary {
+      min-height: 44px;
+      padding: 11px 22px;
+      border-radius: 9999px;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .button-primary {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .button-secondary {
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .button-primary:active,
+    .button-secondary:active {
+      transform: scale(0.95);
+    }
+
+    .button-primary:focus-visible,
+    .button-secondary:focus-visible {
+      outline: 2px solid var(--primary-focus);
+      outline-offset: 2px;
+    }
+
+    .hero-tile,
+    .feature-tile,
+    .history-tile,
+    .footer {
+      padding: 80px 24px;
+    }
+
+    .hero-tile {
+      background: var(--canvas);
+      text-align: center;
+    }
+
+    .hero-inner,
+    .feature-inner,
+    .history-inner,
+    .footer-inner {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      font-size: 21px;
+      font-weight: 600;
+      line-height: 1.19;
+      letter-spacing: 0.231px;
+      color: var(--primary);
+    }
+
+    .hero-title,
+    .section-title {
+      margin: 0;
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 600;
+      line-height: 1.07;
+      letter-spacing: -0.28px;
+    }
+
+    .hero-title {
+      font-size: clamp(34px, 6vw, 56px);
+    }
+
+    .section-title {
+      font-size: clamp(32px, 5vw, 40px);
+    }
+
+    .hero-copy,
+    .section-copy {
+      max-width: 760px;
+      margin: 18px auto 0;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .lotto-stage {
+      margin: 56px auto 0;
+      max-width: 760px;
+    }
+
+    .lotto-machine {
+      position: relative;
+      padding: 36px 24px 28px;
+      border-radius: 18px;
+      background: var(--canvas-parchment);
+      border: 1px solid var(--hairline);
+    }
+
+    .machine-top {
+      margin: 0 auto 28px;
+      width: min(100%, 420px);
+      aspect-ratio: 16 / 9;
+      border-radius: 9999px;
+      border: 10px solid #d9dbe1;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.98) 0%, rgba(241, 243, 248, 0.95) 55%, rgba(224, 228, 235, 0.9) 100%);
+      overflow: hidden;
+    }
+
+    .machine-top::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 86px;
+      width: min(240px, 42%);
+      height: 90px;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #d9dbe1;
+    }
+
+    .number-orbs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 16px;
+      align-items: center;
+    }
+
+    .ball {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: clamp(20px, 2.4vw, 30px);
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -0.28px;
+      box-shadow: var(--shadow-product);
+      transform: translateY(18px);
+      opacity: 0;
+      animation: rise-in 0.45s ease forwards;
+    }
+
+    .ball:nth-child(1) { animation-delay: 0.04s; }
+    .ball:nth-child(2) { animation-delay: 0.08s; }
+    .ball:nth-child(3) { animation-delay: 0.12s; }
+    .ball:nth-child(4) { animation-delay: 0.16s; }
+    .ball:nth-child(5) { animation-delay: 0.20s; }
+    .ball:nth-child(6) { animation-delay: 0.24s; }
+
+    .range-1 { background: #70757f; }
+    .range-2 { background: #5f86b3; }
+    .range-3 { background: #7a6fa8; }
+    .range-4 { background: #8a6f63; }
+    .range-5 { background: #6d8f74; }
+
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      color: var(--ink-muted-48);
+      font-size: 14px;
+      line-height: 1.43;
+      letter-spacing: -0.224px;
+    }
+
+    .feature-tile {
+      background: var(--surface-tile-1);
+      color: var(--body-on-dark);
+      text-align: center;
+    }
+
+    .feature-tile .section-copy {
+      color: var(--body-muted);
+    }
+
+    .feature-grid {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--surface-tile-2);
+      text-align: left;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.24;
+      letter-spacing: -0.374px;
+      color: var(--body-on-dark);
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.43;
+      letter-spacing: -0.224px;
+      color: var(--body-muted);
+    }
+
+    .history-tile {
+      background: var(--canvas-parchment);
+      text-align: center;
+    }
+
+    .history-list {
+      margin-top: 48px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+
+    .history-item {
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+    }
+
+    .history-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.24;
+      letter-spacing: -0.374px;
+      color: var(--ink);
+    }
+
+    .history-item span {
+      color: var(--ink-muted-80);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.374px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer {
+      background: var(--canvas-parchment);
+      border-top: 1px solid var(--divider-soft);
+    }
+
+    .footer-inner {
+      text-align: center;
+      color: var(--ink-muted-48);
+      font-size: 12px;
+      line-height: 1.3;
+      letter-spacing: -0.12px;
+    }
+
+    .footer-inner p {
+      margin: 0;
+    }
+
+    @keyframes rise-in {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 1068px) {
+      .hero-tile,
+      .feature-tile,
+      .history-tile,
+      .footer {
+        padding: 64px 20px;
+      }
+
+      .feature-grid,
+      .history-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 833px) {
+      .global-nav-copy,
+      .sub-nav-note {
+        display: none;
+      }
+
+      .sub-nav-inner {
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-tile,
+      .feature-tile,
+      .history-tile,
+      .footer {
+        padding: 48px 16px;
+      }
+
+      .number-orbs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .machine-top {
+        margin-bottom: 20px;
+      }
+
+      .hero-meta {
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 419px) {
+      .hero-title {
+        font-size: 28px;
+      }
+
+      .section-title {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="global-nav">
+    <div class="global-nav-inner">
+      <div class="global-nav-brand">Lotto</div>
+      <div class="global-nav-copy">Simple. Precise. Numbers.</div>
+      <a class="global-nav-link" href="#history">최근 결과</a>
+    </div>
+  </header>
+
+  <div class="sub-nav">
+    <div class="sub-nav-inner">
+      <div class="sub-nav-title">로또 추첨기</div>
+      <div class="sub-nav-actions">
+        <div class="sub-nav-note">1부터 45까지 중복 없이 선택</div>
+        <button class="button-primary" id="drawButton">번호 뽑기</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero-tile">
+      <div class="hero-inner">
+        <p class="eyebrow">Lucky numbers, refined.</p>
+        <h1 class="hero-title">숫자를 고르는 경험도<br />더 조용하고 아름답게.</h1>
+        <p class="hero-copy">`DESIGN.md`의 가이드를 반영해 화이트와 파치먼트 캔버스, 절제된 다크 타일, 그리고 단 하나의 블루 액션 컬러로 로또 추첨기를 다시 구성했습니다.</p>
+
+        <div class="hero-actions">
+          <button class="button-primary" id="heroDrawButton">다시 추첨하기</button>
+          <button class="button-secondary" id="autoButton">자동 5세트</button>
+        </div>
+
+        <div class="hero-meta">
+          <span id="drawInfo">추첨 대기 중</span>
+          <span>정렬: 오름차순</span>
+          <span>범위: 1 ~ 45</span>
+        </div>
+
+        <div class="lotto-stage">
+          <div class="lotto-machine">
+            <div class="machine-top"></div>
+            <div class="number-orbs" id="numbers"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-tile">
+      <div class="feature-inner">
+        <h2 class="section-title">A quieter interface for chance.</h2>
+        <p class="section-copy">강한 장식 대신 균형 잡힌 타이포그래피와 넓은 여백으로 숫자 자체가 중심이 되도록 만들었습니다.</p>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>단일 액션 컬러</h3>
+            <p>모든 상호작용은 Apple 스타일 가이드에 맞춘 블루 한 가지로만 처리했습니다.</p>
+          </article>
+          <article class="feature-card">
+            <h3>제품처럼 보이는 숫자</h3>
+            <p>번호 볼에는 시스템에서 허용한 유일한 그림자를 적용해, 제품 렌더 같은 존재감을 줍니다.</p>
+          </article>
+          <article class="feature-card">
+            <h3>타일 기반 레이아웃</h3>
+            <p>밝은 섹션과 어두운 섹션을 번갈아 배치해 Apple식 리듬을 만들었습니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="history-tile" id="history">
+      <div class="history-inner">
+        <h2 class="section-title">최근 결과</h2>
+        <p class="section-copy">가장 최근 추첨 결과 5개를 카드 형태로 보여줍니다.</p>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>무작위 숫자 생성기입니다. 실제 복권 당첨을 보장하지 않습니다.</p>
+    </div>
+  </footer>
+
+  <script>
+    const numbersEl = document.getElementById("numbers");
+    const historyEl = document.getElementById("historyList");
+    const drawInfoEl = document.getElementById("drawInfo");
+    const drawButton = document.getElementById("drawButton");
+    const heroDrawButton = document.getElementById("heroDrawButton");
+    const autoButton = document.getElementById("autoButton");
+    const history = [];
+
+    function pickNumbers() {
+      const pool = Array.from({ length: 45 }, (_, index) => index + 1);
+
+      for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      return pool.slice(0, 6).sort((a, b) => a - b);
+    }
+
+    function getRangeClass(number) {
+      if (number <= 10) return "range-1";
+      if (number <= 20) return "range-2";
+      if (number <= 30) return "range-3";
+      if (number <= 40) return "range-4";
+      return "range-5";
+    }
+
+    function renderNumbers(numbers) {
+      numbersEl.innerHTML = "";
+
+      numbers.forEach((number) => {
+        const ball = document.createElement("div");
+        ball.className = `ball ${getRangeClass(number)}`;
+        ball.textContent = number;
+        numbersEl.appendChild(ball);
+      });
+    }
+
+    function renderHistory() {
+      historyEl.innerHTML = "";
+
+      history.slice(0, 5).forEach((numbers, index) => {
+        const item = document.createElement("article");
+        item.className = "history-item";
+        item.innerHTML = `<strong>${history.length - index}번째 추첨</strong><span>${numbers.join("  ")}</span>`;
+        historyEl.appendChild(item);
+      });
+    }
+
+    function drawOneSet() {
+      const numbers = pickNumbers();
+      history.push(numbers);
+      renderNumbers(numbers);
+      renderHistory();
+      drawInfoEl.textContent = `${history.length}번째 추첨 완료`;
+    }
+
+    function drawFiveSets() {
+      const batches = Array.from({ length: 5 }, () => pickNumbers().join("  "));
+      alert(`자동 5세트\n\n${batches.map((set, index) => `${index + 1}. ${set}`).join("\n")}`);
+    }
+
+    drawButton.addEventListener("click", drawOneSet);
+    heroDrawButton.addEventListener("click", drawOneSet);
+    autoButton.addEventListener("click", drawFiveSets);
+
+    drawOneSet();
+  </script>
+</body>
+</html>
