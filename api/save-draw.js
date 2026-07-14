@@ -1,12 +1,7 @@
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "no-store",
-    },
-    body: JSON.stringify(body),
-  };
+function send(res, statusCode, body) {
+  res.status(statusCode).setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "no-store");
+  res.end(JSON.stringify(body));
 }
 
 function toMessage(value) {
@@ -20,15 +15,41 @@ function toMessage(value) {
 }
 
 function buildDebug(stage, extra = {}) {
-  return {
-    stage,
-    ...extra,
-  };
+  return { stage, ...extra };
 }
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return json(405, { error: "Method not allowed" });
+async function readBody(req) {
+  if (typeof req.body === "string") {
+    return JSON.parse(req.body || "{}");
+  }
+
+  if (req.body && typeof req.body === "object") {
+    return req.body;
+  }
+
+  return await new Promise((resolve, reject) => {
+    let raw = "";
+
+    req.on("data", (chunk) => {
+      raw += chunk;
+    });
+
+    req.on("end", () => {
+      try {
+        resolve(JSON.parse(raw || "{}"));
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    req.on("error", reject);
+  });
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    send(res, 405, { error: "Method not allowed" });
+    return;
   }
 
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -36,7 +57,7 @@ exports.handler = async (event) => {
   const supabaseTable = process.env.SUPABASE_TABLE || "lotto_draws";
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    return json(500, {
+    send(res, 500, {
       error: "Supabase env vars are not configured",
       debug: buildDebug("env", {
         hasUrl: Boolean(supabaseUrl),
@@ -44,35 +65,40 @@ exports.handler = async (event) => {
         table: supabaseTable,
       }),
     });
+    return;
   }
 
   let payload;
 
   try {
-    payload = JSON.parse(event.body || "{}");
+    payload = await readBody(req);
   } catch {
-    return json(400, { error: "Invalid JSON body", debug: buildDebug("parse-body") });
+    send(res, 400, { error: "Invalid JSON body", debug: buildDebug("parse-body") });
+    return;
   }
 
   if (!Array.isArray(payload.numbers) || payload.numbers.length !== 6) {
-    return json(400, {
+    send(res, 400, {
       error: "numbers must be an array of 6 values",
-      debug: buildDebug("validate-numbers", { receivedType: typeof payload.numbers, receivedLength: payload.numbers?.length }),
+      debug: buildDebug("validate-numbers", {
+        receivedType: typeof payload.numbers,
+        receivedLength: payload.numbers?.length,
+      }),
     });
+    return;
   }
 
   const numbers = payload.numbers.map((value) => Number(value)).filter(Number.isFinite);
 
   if (numbers.length !== 6) {
-    return json(400, {
+    send(res, 400, {
       error: "numbers must contain valid numeric values",
       debug: buildDebug("validate-numeric", { original: payload.numbers }),
     });
+    return;
   }
 
-  const row = {
-    numbers,
-  };
+  const row = { numbers };
 
   try {
     const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/${supabaseTable}`, {
@@ -105,19 +131,21 @@ exports.handler = async (event) => {
       const message = isJson
         ? responseBody?.message || responseBody?.error || responseBody?.details || rawBody
         : rawBody;
-      return json(response.status, {
+
+      send(res, response.status, {
         error: message || "Supabase insert failed",
         debug,
       });
+      return;
     }
 
-    return json(200, {
+    send(res, 200, {
       ok: true,
       id: Array.isArray(responseBody) ? responseBody?.[0]?.id ?? null : null,
       debug,
     });
   } catch (error) {
-    return json(500, {
+    send(res, 500, {
       error: toMessage(error) || "Supabase request failed",
       debug: buildDebug("fetch-exception", {
         name: error?.name,
@@ -125,4 +153,4 @@ exports.handler = async (event) => {
       }),
     });
   }
-};
+}
