@@ -550,6 +550,16 @@
       }
     }
 
+    function formatDebug(debug) {
+      if (!debug) return "";
+      if (typeof debug === "string") return debug;
+      try {
+        return JSON.stringify(debug);
+      } catch {
+        return String(debug);
+      }
+    }
+
     async function saveDraw(numbers) {
       if (window.location.protocol === "file:") {
         saveStatusEl.textContent = "로컬 파일에서는 저장을 건너뜁니다. Vercel 배포 후 Supabase에 저장됩니다.";
@@ -573,8 +583,11 @@
           ? JSON.parse(rawBody || "{}")
           : { error: rawBody };
 
-        if (!response.ok) throw new Error(toMessage(payload.error || `HTTP ${response.status}`));
-        saveStatusEl.textContent = `Supabase 저장 완료: ${toMessage(payload.id ?? "ok")}`;
+        if (!response.ok) {
+          throw new Error(`${toMessage(payload.error || `HTTP ${response.status}`)}${payload.debug ? ` | debug=${formatDebug(payload.debug)}` : ""}`);
+        }
+
+        saveStatusEl.textContent = `Supabase 저장 완료: ${toMessage(payload.id ?? "ok")}${payload.debug ? ` | debug=${formatDebug(payload.debug)}` : ""}`;
       } catch (error) {
         saveStatusEl.textContent = `저장 실패: ${toMessage(error)}`;
       }
