@@ -9,6 +9,16 @@ function json(statusCode, body) {
   };
 }
 
+function toMessage(value) {
+  if (typeof value === "string") return value;
+  if (value instanceof Error) return value.message;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return json(405, { error: "Method not allowed" });
@@ -63,6 +73,6 @@ exports.handler = async (event) => {
 
     return json(200, { ok: true, id: Array.isArray(payload) ? payload?.[0]?.id ?? null : null });
   } catch (error) {
-    return json(500, { error: error.message || "Supabase request failed" });
+    return json(500, { error: toMessage(error) || "Supabase request failed" });
   }
 };
