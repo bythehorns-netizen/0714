@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "vercel:login": "vercel.cmd login",
+    "vercel:link": "vercel.cmd link",
+    "vercel:deploy": "vercel.cmd deploy --prod",
+    "vercel:env": "vercel.cmd env ls",
+    "supabase:login": "supabase.cmd login",
+    "supabase:link": "supabase.cmd link",
+    "supabase:push": "supabase.cmd db push",
+    "supabase:status": "supabase.cmd status"
+  }
+}
