@@ -601,6 +601,14 @@
       }
     }
 
+    function trackDrawClick(source) {
+      if (typeof gtag === "function") {
+        gtag("event", "draw_button_click", {
+          button_location: source
+        });
+      }
+    }
+
     function drawOneSet() {
       const numbers = pickNumbers();
       history.push(numbers);
@@ -615,8 +623,14 @@
       alert(`자동 5세트\n\n${batches.map((set, index) => `${index + 1}. ${set}`).join("\n")}`);
     }
 
-    drawButton.addEventListener("click", drawOneSet);
-    heroDrawButton.addEventListener("click", drawOneSet);
+    drawButton.addEventListener("click", () => {
+      trackDrawClick("sub_nav");
+      drawOneSet();
+    });
+    heroDrawButton.addEventListener("click", () => {
+      trackDrawClick("hero");
+      drawOneSet();
+    });
     autoButton.addEventListener("click", drawFiveSets);
     drawOneSet();
   </script>
